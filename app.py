@@ -15,24 +15,26 @@ with open('Models/svm_clf_model.pkl', 'rb') as f:
     svm_model = pickle.load(f)
 
 
-def get_predictions(price, Tax, Driver_Age, Licence_Length_Years, req_model):
-    mylist = [Driver_Age, Tax, price, Licence_Length_Years]
+def get_predictions(age,sex,cp,trestbps,chol,fbs,restecg,thalach,exang,oldpeak,slope,ca,thal):
+    mylist = [age,sex,cp,trestbps,chol,fbs,restecg,thalach,exang,oldpeak,slope,ca,thal]
     mylist = [float(i) for i in mylist]
     vals = [mylist]
 
-    if req_model == 'Logistic':
-        #print(req_model)
-        return logistic.predict(vals)[0]
-
-    elif req_model == 'RandomForest':
-        #print(req_model)
-        return randomforest.predict(vals)[0]
-
-    elif req_model == 'SVM':
-        #print(req_model)
-        return svm_model.predict(vals)[0]
-    else:
-        return "Cannot Predict"
+    return logistic.predict(vals)[0] # only build logistic
+    
+    #if req_model == 'Logistic':
+    #    #print(req_model)
+    #    return logistic.predict(vals)[0]
+    #
+    #elif req_model == 'RandomForest':
+    #    #print(req_model)
+    #    return randomforest.predict(vals)[0]
+    #
+    #elif req_model == 'SVM':
+    #    #print(req_model)
+    #    return svm_model.predict(vals)[0]
+    #else:
+    #    return "Cannot Predict"
 
 
 app = Flask(__name__)
@@ -43,20 +45,31 @@ def my_form():
 
 @app.route('/', methods=['POST', 'GET'])
 def my_form_post():
-    price = request.form['price']
-    Tax = request.form['Tax']
-    Driver_Age = request.form['Driver_Age']
-    Licence_Length_Years = request.form['Licence_Length_Years']
+
+    age=           request.form['age']
+    sex=           request.form['sex']
+    cp=            request.form['cp']
+    trestbps=      request.form['trestbps']
+    chol=          request.form['chol']
+    fbs=           request.form['fbs']
+    restecg=       request.form['restecg']
+    thalach=       request.form['thalach']
+    exang=         request.form['exang']
+    oldpeak=       request.form['oldpeak']
+    slope=         request.form['slope']
+    ca=             request.form['ca']
+    thal=          request.form['thal']
+
     req_model = request.form['req_model']
 
-    target = get_predictions(price, Tax, Driver_Age, Licence_Length_Years, req_model)
+    target = get_predictions(age,sex,cp,trestbps,chol,fbs,restecg,thalach,exang,oldpeak,slope,ca,thal)
 
     if target==1:
-        sale_making = 'Customer is likely to buy the insurance'
+        result = 'Positive (target=1)=>This patient has problem with heart desease'
     else:
-        sale_making = 'Customer is unlikely to buy the insurance'
+        result = "Negative (target=0)=>This patient doesn't have problem with heart desease"
 
-    return render_template('home.html', target = target, sale_making = sale_making)
+    return render_template('home.html', target = target, result = result)
 
 
 if __name__ == "__main__":
